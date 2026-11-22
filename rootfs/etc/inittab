@@ -1,0 +1,18 @@
+# /etc/inittab - SysV style init table for USR/UX
+# id:runlevels:action:process
+#   0 = halt, 1 = single user, 2-5 = multi user, 6 = reboot
+
+id:3:initdefault:
+
+si::sysinit:/bin/fush /etc/rc.sysinit
+
+l0:0:wait:/bin/fush /etc/rc.halt
+l1:1:wait:/bin/fush /etc/rc
+l2:2:wait:/bin/fush /etc/rc
+l3:3:wait:/bin/fush /etc/rc
+l4:4:wait:/bin/fush /etc/rc
+l5:5:wait:/bin/fush /etc/rc
+l6:6:wait:/bin/fush /etc/rc.reboot
+
+1:2345:respawn:/bin/login
+su:S1:respawn:/bin/fush

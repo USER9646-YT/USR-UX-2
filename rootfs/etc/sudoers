@@ -1,0 +1,3 @@
+# users allowed to run commands as another user with sudo
+user
+root

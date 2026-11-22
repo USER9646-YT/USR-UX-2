@@ -1,0 +1,286 @@
+####################################################################
+# config - Microwindows and Nano-X configuration file
+#
+# Set target architecture using ARCH= from options in Arch.rules
+# Set drawing method: X11 or FRAMEBUFFER/MOUSE/KEYBOARD options
+# Set SCREEN/MOUSE/KEYBOARD drivers (typically X11 or FB)
+# Set various libraries to build or include and their locations
+#
+# See the src/Configs directory for pre-built config files.
+# Edit this or copy one from src/Configs, and type "make clean; make"
+#
+# USR/UX: derived from the shipped config. Every line that differs
+# from it is marked "USR/UX:". The libraries and font files the OS
+# doesn't have yet are switched off, so only the built-in fonts and
+# BMP images work for now.
+####################################################################
+
+####################################################################
+#
+# Target platform and compilation options
+#
+####################################################################
+# USR/UX: LINUX-NATIVE supplies -DLINUX=1 -DUNIX=1, which selects the
+# select()-based event loop. It becomes USRUX once Arch.rules has a
+# block for the OS's own compiler and linker flags.
+ARCH                     = LINUX-NATIVE
+USRUX                    = Y
+SHAREDLIBS               = N
+SHAREDLINK               = N
+#EXTRAFLAGS               = -Wall -Wno-missing-prototypes
+DEBUG                    = N
+OPTIMIZE                 = Y
+#OPTIMIZE                 = -O1
+VERBOSE                  = N
+THREADSAFE               = N
+PARALLEL                 = N
+
+####################################################################
+# Screen Driver
+# Set SCREEN=X11 for X11, SCREEN=FB for framebuffer drawing
+# Screen size/depth for X11, FBE and non-dynamic framebuffer systems
+####################################################################
+SCREEN                   = FB
+# USR/UX: /dev/input/mice, which the kernel provides
+MOUSE                    = DEVMICEMOUSE
+# USR/UX: was SCANKBD. The scancode driver needs raw keyboard modes,
+# which the kernel doesn't have; the tty driver reads translated
+# characters (no key-release events).
+KEYBOARD                 = TTYKBD
+SCREEN_WIDTH             = 1024
+SCREEN_HEIGHT            = 768
+#X11LIBLOCATION           = /usr/X11/lib
+#X11HDRLOCATION           = /usr/X11/include
+
+####################################################################
+#
+# Libraries to build: microwin, nano-X, nxlib, engine
+#
+####################################################################
+# USR/UX: Nano-X only. The Win32-style Microwindows API and the
+# Nuklear GUI are switched off.
+MICROWIN                 = N
+NANOX                    = Y
+NUKLEARUI                = N
+NX11                     = N
+ENGINE                   = N
+TINYWIDGETS              = N
+
+####################################################################
+#
+# Applications and demos to build
+#
+####################################################################
+FBEMULATOR               = N
+MICROWINDEMO             = N
+MICROWINMULTIAPP         = N
+NANOXDEMO                = Y
+HAVE_VNCSERVER_SUPPORT   = N
+VNCSERVER_PTHREADED      = N
+LIBVNC                   =
+INCVNC                   =
+
+####################################################################
+# LINK_APP_INTO_SERVER links the nano-X server into the application,
+# by building a libnano-X.{a,so} that runs standalone.
+# Required if UNIX sockets aren't available, for debugging,
+# and also used to support running X11 apps through NXLIB on X11.
+# NANOWM links the window manager into the server.
+####################################################################
+# USR/UX: the OS has no sockets, so server and application are one program
+LINK_APP_INTO_SERVER     = N
+# USR/UX: off for the first window; switch on once drawing works
+NANOWM                   = Y
+
+####################################################################
+# Shared memory support for Nano-X client/server protocol speedup
+####################################################################
+# USR/UX: no shared memory, and no client/server protocol either
+HAVE_SHAREDMEM_SUPPORT   = N
+
+####################################################################
+# File I/O support
+# Supporting either below drags in libc stdio, which may not be wanted
+####################################################################
+HAVE_FILEIO              = Y
+
+####################################################################
+# BMP, GIF reading support
+####################################################################
+HAVE_BMP_SUPPORT         = Y
+# USR/UX: GIF, PNM and XPM are plain C and could be switched on later
+HAVE_GIF_SUPPORT         = N
+HAVE_PNM_SUPPORT         = N
+HAVE_XPM_SUPPORT         = N
+
+####################################################################
+# JPEG support through libjpeg, see README.txt in contrib/jpeg
+####################################################################
+HAVE_JPEG_SUPPORT        = N
+INCJPEG                  =
+LIBJPEG                  =
+
+####################################################################
+# PNG support via libpng and libz
+####################################################################
+# USR/UX: needs libpng and zlib, which are not ported yet
+HAVE_PNG_SUPPORT         = N
+INCPNG                   =
+LIBPNG                   =
+INCZ                     =
+LIBZ                     =
+
+####################################################################
+# TIFF support through libtiff
+####################################################################
+HAVE_TIFF_SUPPORT        = N
+INCTIFF                  =
+LIBTIFF                  =
+
+####################################################################
+# PCF font support - .pcf/.pcf.gz loadable fonts
+####################################################################
+# USR/UX: loadable fonts need font files on the disk; the built-in
+# compiled fonts are used instead
+HAVE_PCF_SUPPORT         = N
+HAVE_PCFGZ_SUPPORT       = N
+PCF_FONT_DIR             = "fonts/pcf"
+
+####################################################################
+# Truetype fonts - .ttf and .otf loadable fonts thru Freetype 2.x
+####################################################################
+# USR/UX: needs FreeType, which is not ported
+HAVE_FREETYPE_2_SUPPORT  = N
+HAVE_HARFBUZZ_SUPPORT    = N
+INCFT2LIB                =
+LIBFT2LIB                =
+#LIBFT2LIB                += -lharfbuzz
+FREETYPE_FONT_DIR        = "fonts/truetype"
+
+####################################################################
+# T1 adobe type1 fonts - .pfb/.afm loadable thru t1lib
+# t1lib.config must be setup and in T1LIB_FONT_DIR
+####################################################################
+HAVE_T1LIB_SUPPORT       = N
+T1LIB_FONT_DIR           = "fonts/type1"
+INCT1LIB                 =
+LIBT1LIB                 =
+
+####################################################################
+# FNT font support - .fnt/.fnt.gz loadable fonts (native bdf-converted)
+####################################################################
+# USR/UX: see PCF above
+HAVE_FNT_SUPPORT         = N
+HAVE_FNTGZ_SUPPORT       = N
+FNT_FONT_DIR             = "fonts/fnt"
+
+####################################################################
+# Specialized font support
+#
+# Chinese Han Zi Ku HZK loadable font support
+# Chinese Hanzi Bitmap Font HBF loadable font support
+# DBCS Chinese BIG5 compiled in font support (big5font.c)
+# DBCS Chinese GB2312 compiled in font support (gb2312font.c)
+# DBCS Japanese JISX0213 compiled in font support (jisx0213-12x12.c)
+# Japanese EUC-JP support using loadable MGL font
+# DBCS Korean HANGUL font support (jo16x16.c)
+# Fribidi and shape/joining support for right to left rendering
+####################################################################
+HAVE_HZK_SUPPORT         = N
+HZK_FONT_DIR             = "fonts/chinese"
+HAVE_HBF_SUPPORT         = N
+HAVE_BIG5_SUPPORT        = N
+HAVE_GB2312_SUPPORT      = N
+HAVE_JISX0213_SUPPORT    = N
+HAVE_EUCJP_SUPPORT       = N
+EUCJP_FONT_DIR           = "fonts/japanese"
+HAVE_KSC5601_SUPPORT     = N
+HAVE_FRIBIDI_SUPPORT     = N
+HAVE_SHAPEJOINING_SUPPORT = N
+INCFRIBIDI               =
+LIBFRIBIDI               =
+
+####################################################################
+# Misc Options
+####################################################################
+
+# Window move algorithms for Microwindows
+# Change for tradeoff between cpu speed and looks
+# ERASEMOVE (nanowm) repaints only backgrounds while window dragging
+# Otherwise an XOR redraw is used for window moves only after button up
+# UPDATEREGIONS (win32 api only)paints in update clipping region only
+ERASEMOVE                = Y
+UPDATEREGIONS            = Y
+
+# Generate screen driver interface only with no fonts or clipping
+NOFONTS                  = N
+NOCLIPPING               = N
+
+# set USE_EXPOSURE for X11 on XFree86 4.x or if backing store not working
+# set VTSWITCH to include virtual terminal switch code
+# set FBREVERSE to reverse bit orders in 1,2,4 bpp
+# set GRAYPALETTE to link with Gray Palette (valid only for 4bpp modes)
+# set HAVETEXTMODE=Y for systems that can switch between text & graphics.
+USE_EXPOSURE             = Y
+# USR/UX: there is only one console, and signals can't be delivered, so no VT switching
+VTSWITCH                 = N
+FBREVERSE                = N
+GRAYPALETTE              = N
+# the kernel supports KDSETMODE (text/graphics) and restores the text
+# console if the program dies
+HAVETEXTMODE             = Y
+
+####################################################################
+# Screen pixel format
+# If using Linux framebuffer, set to MWPF_TRUECOLORARGB, and use fbset.
+# When running X11 or FBE, this sets the pixel emulation at runtime.
+#
+# On Linux or when running the standard framebuffer subdrivers,
+# the runtime framebuffer BPP (bits per pixel) is used to select
+# the runtime screen subdriver.  However, the format of the pixel
+# itself must be selected at compile time, which sets macros used
+# for MWCOLORVAL color conversions and conversion blit byte order.
+# This also sets sizeof(MWPIXELVAL) for optimizing buffers sizes
+# in GrArea/GrReadArea.
+#
+# define MWPF_PALETTE       /* pixel is packed 8 bits 1, 4 or 8 pal index*/
+# define MWPF_TRUECOLORARGB /* pixel is packed 32 bits byte order |B|G|R|A|*/
+# define MWPF_TRUECOLORABGR /* pixel is packed 32 bits byte order |R|G|B|A|*/
+# define MWPF_TRUECOLORRGB  /* pixel is packed 24 bits byte order |B|G|R|*/
+# define MWPF_TRUECOLOR565  /* pixel is packed 16 bits little endian RGB565*/
+# define MWPF_TRUECOLOR555  /* pixel is packed 16 bits little endian RGB555*/
+# define MWPF_TRUECOLOR332  /* pixel is packed 8 bits RGB 332*/
+# define MWPF_TRUECOLOR233  /* pixel is packed 8 bits BGR 332*/
+# SCREEN_DEPTH is bits per pixel, only used with MWPF_PALETTE palette mode
+####################################################################
+# USR/UX: the framebuffer is blue at bit 0, green at 8, red at 16 (byte order |B|G|R|A|)
+SCREEN_PIXTYPE           = MWPF_TRUECOLORARGB
+#SCREEN_PIXTYPE           = MWPF_TRUECOLORABGR
+#SCREEN_PIXTYPE           = MWPF_TRUECOLOR565
+SCREEN_DEPTH             = 8
+
+####################################################################
+# Screen drivers
+# SCREEN=X11            X11
+# SCREEN=FB                     linux framebuffer
+# SCREEN=FBE            framebuffer emulator
+# SCREEN=SDL            SDL v2
+# SCREEN=ALLEGRO        Allegro v5
+####################################################################
+
+####################################################################
+# Mouse drivers
+# MOUSE=NOMOUSE         no mouse driver
+# MOUSE=GPMMOUSE        gpm mouse
+# MOUSE=SERMOUSE        serial Microsoft, PC, Logitech, PS/2 mice (/dev/psaux)
+# MOUSE=DEVMICEMOUSE Use Linux /dev/input/mice driver
+# MOUSE=TSLIBMOUSE      Use tslib (/dev/input/event0)
+####################################################################
+
+####################################################################
+# Keyboard drivers
+# KEYBOARD=NOKBD                no keyboard driver
+# KEYBOARD=TTYKBD               tty keyboard
+# KEYBOARD=SCANKBD              scanmode keyboard
+# KEYBOARD=2NDKBD               two keyboards support
+####################################################################

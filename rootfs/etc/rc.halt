@@ -1,0 +1,3 @@
+echo "[rc.halt] the system is going down for power off now"
+sync
+poweroff

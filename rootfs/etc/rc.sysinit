@@ -1,0 +1,5 @@
+# runs once at boot, before the first runlevel
+hostname -F /etc/hostname
+echo "[sysinit] kernel mounted /, /dev, /tmp and /run"
+uname -a
+cat /etc/unixtext

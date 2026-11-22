@@ -1,0 +1,3 @@
+echo "[rc.reboot] the system is going down for reboot now"
+sync
+reboot

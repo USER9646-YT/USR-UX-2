@@ -1,0 +1,59 @@
+USR/UX 2 -- a small ACTUAL UNIX-Like kernel (unlike its predecessor USR/UX)
+
+USR/UX (UserUNIX) is a lightweight monolithic UNIX-like operating system. It tries to be more UNIX-like and POSIX compatible (it also has ring 3), but it wont be as professional as other OsDev projects like Zinnia, Ethereal or Astral.
+
+huge flex: it runs on 6-8 MB
+
+It works with ext2 and has a init system.
+Init: /sbin/init - SysV style Init
+
+Its shells:
+fush - Fast and Usable Shell (/bin/fush and /bin/sh) - Minimal shell system
+lsh - Stephen Brennan's LSH (/bin/lsh).
+
+Its C library:
+ulib - UserLibrary
+
+It also has a VI-like editor which is just called "vi", because i dont want to add the u- suffix to every thing
+
+Its C compiler is tcc, but you need to run "cc" on the terminal because programs only load at 0x40000000 and above, and cc fixes that issue.
+
+How to compile and run it:
+
+You will need:
+e2fsprogs, xorriso, grub-mkrescue, gcc, nasm and ld.
+
+Now do:
+make libc    - Makes the C library
+make nanox   - Makes NanoX
+make         - Makes the kernel
+make disk    - Makes the binaries in user/ and apps/ and then the ext2 rootfs disk (bootable)
+make run     - Runs the kernel binary with rootfs as its storage (no FB!)
+make bootsys - Runs the img file (necessary for framebuffer to work!)
+
+Specs needed for USR/UX 2 to work:
+Storage:         ATA/IDE HDD or a SATA SSD/HDD on ATA/Compatibility mode
+Memory:          6-8 MB of RAM minimum, for Nano-X/Microwindows or compiling, 12-16 mb or more.
+Processor:       586/Pentium up to Pentium III minimum, Pentium 4 recommended
+Video card:      Any VGA card can work with that mistake of a UNIX. Yes, VGA, EGA could work but the frame buffer would not like it very much (HDMI/DP probably works too, didnt test it tho).
+Minimum storage: 32 mb. Thats all. Disk size is set at 1 GB but you can change it in mkimage.sh to be 32 mb
+Computer:        early-late 90s minimum (storage issues MAY happen), recommended early-mid 2000s (SATA on compatibility mode)
+Boot type:       MBR BIOS, which means EFI GPT does not work.
+
+Code used from other people:
+https://github.com/ss7m/paleofetch
+Copyright (c) 2020. Sam Barr
+
+https://github.com/brenns10/lsh
+Under the Unlicense
+
+https://github.com/thepanoc95/cfetch
+Copyright (c) 2026, OakyMacintosh
+
+https://github.com/tinycc/tinycc
+GNU Lesser General Public License
+
+https://github.com/ghaerr/microwindows
+GNU General Public License V2
+
+This project is licensed under the GNU General Public License V2.
