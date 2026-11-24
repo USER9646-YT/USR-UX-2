@@ -1,0 +1,70 @@
+#include <stdio.h>
+#include <string.h>
+#include <fcntl.h>
+#include <unistd.h>
+#include <sys/ioctl.h>
+#include <sys/blkinfo.h>
+
+static void pad(const char *s, int width) {
+    int n = (int)strlen(s);
+    printf("%s", s);
+    while (n++ < width) printf(" ");
+}
+
+static void size_str(uint32_t sectors, char *out) {
+    uint32_t mib = sectors / 2048;
+    if (mib >= 1024) {
+        uint32_t tenths = mib * 10 / 1024;
+        sprintf(out, "%u.%uG", tenths / 10, tenths % 10);
+    } else if (mib > 0) {
+        sprintf(out, "%uM", mib);
+    } else {
+        sprintf(out, "%uK", sectors / 2);
+    }
+}
+
+static int show(const char *path, const char *name) {
+    struct blkinfo bi;
+    char size[16];
+
+    int fd = open(path, O_RDONLY);
+    if (fd < 0) return 0;
+    if (ioctl(fd, BLKGETINFO, &bi) < 0) { close(fd); return 0; }
+    close(fd);
+
+    size_str(bi.sectors, size);
+    pad(name, 12);
+    pad(size, 8);
+    pad(bi.part ? "part" : "disk", 6);
+    if (bi.part) {
+        printf("\n");
+        return 1;
+    }
+    pad(bi.bus, 6);
+    pad(bi.flags & 1 ? "1" : "0", 3);
+    printf("%s\n", bi.model);
+    return 1;
+}
+
+int main(void) {
+    char path[32], name[24];
+    int found = 0;
+
+    pad("NAME", 12); pad("SIZE", 8); pad("TYPE", 6); pad("TRAN", 6); pad("RM", 3);
+    printf("MODEL\n");
+
+    for (int d = 0; d < 16; d++) {
+        sprintf(name, "disk%d", d);
+        sprintf(path, "/dev/%s", name);
+        if (!show(path, name)) continue;
+        found++;
+
+        for (int p = 1; p < 32; p++) {
+            sprintf(name, "disk%dp%d", d, p);
+            sprintf(path, "/dev/%s", name);
+            show(path, name);
+        }
+    }
+    if (!found) printf("(no block devices)\n");
+    return 0;
+}

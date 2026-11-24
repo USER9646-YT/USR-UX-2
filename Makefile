@@ -54,11 +54,12 @@ OBJS := boot/boot.o boot/gdt.o boot/isr.o boot/switch.o \
         kernel/kernel.o kernel/terminal.o kernel/kprintf.o kernel/string.o \
         kernel/gdt.o kernel/idt.o kernel/pic.o kernel/pit.o kernel/keyboard.o \
         kernel/pmm.o kernel/paging.o kernel/kheap.o kernel/ata.o kernel/part.o \
+        kernel/pci.o kernel/ahci.o kernel/ehci.o kernel/usbstor.o \
         kernel/vfs.o kernel/ramfs.o kernel/devfs.o kernel/pipe.o kernel/ext2.o \
         kernel/syscall.o kernel/elf.o kernel/proc.o kernel/tty.o kernel/power.o \
         kernel/fb.o kernel/fbdev.o kernel/mouse.o kernel/hostname.o \
         kernel/sys_init.o kernel/sys_extra.o kernel/poll.o \
-        kernel/sys_socket.o kernel/pty.o \
+        kernel/sys_socket.o kernel/pty.o kernel/blkdev.o \
         kernel/panic.o kernel/rtc.o kernel/sys_cred.o kernel/sys_tty.o \
         kernel/sys_mem.o kernel/sys_time.o kernel/sys_misc.o \
         kernel/procfs.o kernel/keymap.o kernel/latin1.o kernel/kbdmenu.o
@@ -211,6 +212,7 @@ clean:
 	       rootfs/bin/* rootfs/sbin/* rootfs/boot/kernel.bin \
 	       $(TCC_DIR)/tcc.o $(TCC_DIR)/tcc.d $(TCC_DIR)/tcc $(TCC_DIR)/libtcc1.a $(TCC_DIR)/lib/*.o \
 	       rootfs/lib/*.a rootfs/lib/*.o rootfs/lib/tcc rootfs/usr/include
+	       touch rootfs/bin/f rootfs/sbin/f
 
 .PHONY: all run iso clean disk bootsys libc sysroot nanox nanox-clean
 

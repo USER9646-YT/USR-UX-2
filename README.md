@@ -1,5 +1,9 @@
 # USR/UX 2 - a small UNIX-like operating system
-USR/UX 2 (UserUNIX) is a lightweight monolithic UNIX-like operating system. It tries to be more UNIX-like and POSIX compatible (it also has ring 3), but it wont be as professional as other OsDev projects like Zinnia, Ethereal or Astral. It can run on 5 MB of RAM. It is not the same as the first version, which is based on TanjaOS. This is a fully independent OS. Its file system is ext2.
+USR/UX 2 (UserUNIX) is a UNIX clone made for 32-bit x86 computers written from scratch. It tries to be more POSIX compliant than its predecessor, but it wont be as professional as other OsDev projects like Zinnia, Ethereal or Astral. It can run on 4 MB of RAM.
+
+It is not the same as the first version, which is based on TanjaOS. This is a fully independent OS not based off anything. 
+
+Its file system is ext2.
 
 Default password for root is: root. For the user "user", the password is: aaa.
 
@@ -9,8 +13,8 @@ Also delete all files titled: "t" in the directories of the rootfs folder before
 
 ```
 Specs needed for USR/UX 2 to work:
-Storage:         ATA/IDE HDD or a SATA SSD/HDD on ATA/Compatibility mode
-Memory:          6-8 MB of RAM minimum, for Nano-X/Microwindows or compiling, 12-16 mb or more.
+Storage:         ATA/IDE HDD or a SATA SSD/HDD on ATA/Compatibility mode. SATA/AHCI is done for QEMU but not for bare metal usage.
+Memory:          4 MB of RAM minimum, for Nano-X/Microwindows or compiling, 6-12 mb or more.
 Processor:       586/Pentium up to Pentium III minimum, Pentium 4 recommended
 Video card:      Any VGA card can work with that mistake of a UNIX. Yes, VGA, EGA could work but the frame buffer would not like it very much (HDMI/DP probably works too, didnt test it tho).
 Minimum storage: 32 mb. Thats all. Disk size is set at 1 GB but you can change it in mkimage.sh to be 32 mb
@@ -31,7 +35,7 @@ lsh - Stephen Brennan's LSH (/bin/lsh).
 
 Its C library:
 
-ulib - UserLibrary
+ulibc - UserLibraryC/User C Library (libc/ in source code)
 
 ## What you will need to do to install:
 You will need:
@@ -49,7 +53,7 @@ make run     - Runs the kernel binary with rootfs as its storage (no FB!)
 make bootsys - Runs the img file (necessary for framebuffer to work!)
 ```
 To start the GUI, you will need to do (inside the OS):
-```bash
+```sh
 startnx
 ```
 
@@ -75,7 +79,13 @@ GNU Lesser General Public License
 https://github.com/ghaerr/microwindows
 GNU General Public License V2
 
+See "THIRDPARTYLICENSE" for more information.
+
 # What is missing?
-Vital disk commands such as mount, umount
-Listing of disks on /dev/
-SATA support
+Vital disk commands such as mount, umount and dd
+
+Fat32 compatibility
+
+Sound
+
+Shortcuts/Links

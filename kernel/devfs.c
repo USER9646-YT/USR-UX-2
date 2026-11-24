@@ -6,6 +6,7 @@
 #include "vfs.h"
 #include "tty.h"
 #include "pty.h"
+#include "blkdev.h"
 #include "pit.h"
 #include "fbdev.h"
 #include "mouse.h"
@@ -84,6 +85,8 @@ struct vfs_node *devfs_create(void) {
 
     ramfs_add_node(root, "ptmx",    pty_ptmx_node());   // open() it to get a new pty master
     ramfs_add_node(root, "pts",     pty_pts_node());    // /dev/pts/N = the slave sides
+
+    blkdev_register(root);                      // /dev/disk0, /dev/disk0p1, ...
 
     struct vfs_node *fb = fbdev_node();
     if (fb) ramfs_add_node(root, "fb0", fb);

@@ -20,7 +20,7 @@
 #include "hostname.h"
 
 #define OS_SYSNAME  "USR/UX"
-#define OS_RELEASE  "2 0.86"
+#define OS_RELEASE  "2 0.91"
 #define OS_VERSION  "#1 Wed 21 Nov 2026 22:52:45 +0100"
 #define OS_MACHINE  "i386"
 

@@ -18,7 +18,7 @@ int main(void) {
     for (;;) {
         struct utsname u;
         uname(&u);
-        puts("\nUSR/UX 2 0.86\n");
+        puts("\nUSR/UX 2 0.91\n");
         puts(u.nodename);
         puts(" login: ");
         if (read_line(user, sizeof(user)) <= 0) continue;

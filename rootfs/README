@@ -1,0 +1,17 @@
+This is the root file system of USR/UX 2.
+When compiled, it will be turned into a img file containing the kernel binary (/boot/kernel.bin) (it will also be bootable).
+
+Directories of the FS:
+lost+found - Unused recovery directory where a program (fsck) may add recovered files to (made by ext2 itself).
+root       - /home, but for the root user.
+home       - Similar to C:\Users or /home in Linux. A directory containing the files for each user.
+boot       - Directory containing GRUB and the kernel binary.
+var        - Unused
+run        - Has a file titled "runlevel". Shows current kernel runlevel.
+bin        - User binaries (ls, cat)
+sbin       - System binaries (init, telinit)
+etc        - System-wide configuration files
+dev        - Shows devices such as mouse, keyboard and framebuffer.
+usr        - UNIX System Resources. Contains the folders bin (User-made binaries) and include (/lib/tcc/include is used however)
+lib        - C library and kernel module loading place (for later stuff, such as networking drivers)
+tmp        - Temporary
