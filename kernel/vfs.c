@@ -254,6 +254,40 @@ int vfs_mount(const char *path, struct vfs_node *root) {
     return 0;
 }
 
+int vfs_umount(const char *path) {
+    char norm[VFS_PATH_MAX];
+    int r = normalize(path, norm);
+    if (r) return r;
+    if (norm[1] == '\0') return -EBUSY;                     // never the root
+
+    int idx = -1;
+    for (int i = 0; i < nmounts; i++)
+        if (strcmp(mounts[i].path, norm) == 0) idx = i;
+    if (idx < 0) return -EINVAL;                            // not a mount point
+
+    size_t len = strlen(norm);
+    for (int i = 0; i < nmounts; i++) {                     // another mount lies below it
+        if (i == idx) continue;
+        if (strncmp(mounts[i].path, norm, len) == 0 && mounts[i].path[len] == '/') return -EBUSY;
+    }
+
+    struct vfs_node *root = mounts[idx].root;
+    if (!root->ops || !root->ops->unmount) return -EINVAL;  // this filesystem cannot be unmounted
+    r = root->ops->unmount(root);
+    if (r) return r;
+
+    for (int i = idx; i < nmounts - 1; i++) mounts[i] = mounts[i + 1];
+    nmounts--;
+    memset(&mounts[nmounts], 0, sizeof(mounts[0]));
+    return 0;
+}
+
+int vfs_mount_path(int index, char *out) {
+    if (index < 0 || index >= nmounts) return -1;
+    memcpy(out, mounts[index].path, strlen(mounts[index].path) + 1);
+    return 0;
+}
+
 // ---------- open file objects ---------- //
 
 struct vfs_file *vfs_file_alloc(struct vfs_node *n, int flags) {

@@ -212,7 +212,7 @@ static int builtin(struct cmd *c, int *status) {
         puts("ls cat echo cp mv rm mkdir rmdir touch grep head tail wc tee vi env\n"
              "clear sleep ps kill pkill chmod chown uname hostname id whoami su sudo\n"
              "true false halt poweroff reboot telinit runlevel cc hello\n"
-             "help pid cd pwd exit\n");
+             "help pid cd pwd exit startnx mount umount lsblk\n");
         return 1;
     }
     if (streq(argv[0], "cd")) {
@@ -454,7 +454,7 @@ int main(int argc, char **argv, char **envp) {
         ioctl(0, TIOCSECHO, 1);
         set_foreground(0);                          // nothing to interrupt while we wait for input 
         reap_jobs();                                // report background jobs that have finished 
-        puts(getuid() == 0 ? "sh4-1.0# " : "sh4-1.0$ ");
+        puts(getuid() == 0 ? "sh-1.0# " : "sh-1.0$ ");
 
         int n = read(0, line, sizeof(line) - 1);
         if (n == 0) { puts("exit\n"); _exit(0); }       // Ctrl-D

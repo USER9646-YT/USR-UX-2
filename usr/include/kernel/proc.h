@@ -62,6 +62,7 @@ int  proc_getpgid(int pid);                    // 0 = this process; -ESRCH if th
 void proc_tick(uint32_t ticks);                // called from the timer interrupt
 int  proc_sleep(uint32_t nticks);              // 0, or -EINTR if a signal arrived
 int  proc_info(int index, struct procinfo *out);
+int  proc_cwd_inside(const char *prefix);      // 1 if any process's cwd is at or below prefix
 
 // Copies a NUL-terminated string from user space; returns its length or -errno
 int  copy_str_from_user(char *dst, const char *src, size_t max);

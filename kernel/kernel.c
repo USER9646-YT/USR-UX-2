@@ -23,6 +23,7 @@
 #include "procfs.h"
 #include "ext2.h"
 #include "proc.h"
+#include "mount.h"
 
 static void halt(void) {
     for (;;) __asm__ volatile ("cli; hlt");
@@ -98,7 +99,8 @@ void kernel_main(uint32_t magic, struct multiboot_info *mbi) {
     }
     vfs_mount("/", root);
     vfs_mount("/tmp", ramfs_create_root());      // scratch space in RAM 
-    vfs_mount("/dev", devfs_create());           // device nodes 
+    vfs_mount("/dev", devfs_create());           // device nodes
+    mount_record("/", 0, root_lba, root_sectors ? root_sectors : ata_get(0)->sectors);
     vfs_mount("/proc", procfs_create());         // kernel and process information 
 
     struct vfs_node *run = ramfs_create_root();  // init <-> telinit, runlevel: root only 

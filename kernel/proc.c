@@ -567,3 +567,14 @@ int proc_info(int index, struct procinfo *out) {
     memcpy(out->name, p->name, sizeof(out->name));
     return 1;
 }
+
+int proc_cwd_inside(const char *prefix) {
+    size_t n = strlen(prefix);
+
+    for (int i = 0; i < MAX_PROCS; i++) {
+        if (procs[i].state == P_UNUSED || procs[i].state == P_EMBRYO) continue;
+        const char *c = procs[i].cwd;
+        if (strncmp(c, prefix, n) == 0 && (n == 1 || c[n] == '\0' || c[n] == '/')) return 1;
+    }
+    return 0;
+}

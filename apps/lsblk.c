@@ -5,6 +5,53 @@
 #include <sys/ioctl.h>
 #include <sys/blkinfo.h>
 
+struct mnt { char dev[24]; char dir[64]; };
+static struct mnt mnts[16];
+static int nmnts;
+
+// Reads /proc/mounts ("disk0p1 / ext2 rw 0 0") and keeps the block-device entries
+static void load_mounts(void) {
+    static char buf[2048];
+    int fd = open("/proc/mounts", O_RDONLY);
+    int n;
+
+    if (fd < 0) return;
+    n = read(fd, buf, sizeof(buf) - 1);
+    close(fd);
+    if (n <= 0) return;
+    buf[n] = '\0';
+
+    char *p = buf;
+    while (*p && nmnts < 16) {
+        char *eol = p;
+        while (*eol && *eol != '\n') eol++;
+        char save = *eol;
+        *eol = '\0';
+
+        char *sp1 = strchr(p, ' ');
+        if (sp1) {
+            *sp1 = '\0';
+            char *dir = sp1 + 1;
+            char *sp2 = strchr(dir, ' ');
+            if (sp2) *sp2 = '\0';
+            if (strncmp(p, "disk", 4) == 0 && strlen(p) < sizeof(mnts[0].dev) &&
+                strlen(dir) < sizeof(mnts[0].dir)) {
+                strcpy(mnts[nmnts].dev, p);
+                strcpy(mnts[nmnts].dir, dir);
+                nmnts++;
+            }
+        }
+        if (!save) break;
+        p = eol + 1;
+    }
+}
+
+static const char *mountpoint(const char *name) {
+    for (int i = 0; i < nmnts; i++)
+        if (strcmp(mnts[i].dev, name) == 0) return mnts[i].dir;
+    return "";
+}
+
 static void pad(const char *s, int width) {
     int n = (int)strlen(s);
     printf("%s", s);
@@ -37,12 +84,15 @@ static int show(const char *path, const char *name) {
     pad(size, 8);
     pad(bi.part ? "part" : "disk", 6);
     if (bi.part) {
-        printf("\n");
-        return 1;
+        pad("", 6);
+        pad("", 3);
+        pad("", 22);
+    } else {
+        pad(bi.bus, 6);
+        pad(bi.flags & 1 ? "1" : "0", 3);
+        pad(bi.model, 22);
     }
-    pad(bi.bus, 6);
-    pad(bi.flags & 1 ? "1" : "0", 3);
-    printf("%s\n", bi.model);
+    printf("%s\n", mountpoint(name));
     return 1;
 }
 
@@ -50,8 +100,11 @@ int main(void) {
     char path[32], name[24];
     int found = 0;
 
+    load_mounts();
+
     pad("NAME", 12); pad("SIZE", 8); pad("TYPE", 6); pad("TRAN", 6); pad("RM", 3);
-    printf("MODEL\n");
+    pad("MODEL", 22);
+    printf("MOUNTPOINT\n");
 
     for (int d = 0; d < 16; d++) {
         sprintf(name, "disk%d", d);

@@ -11,11 +11,12 @@
 #include "rtc.h"
 #include "pmm.h"
 #include "kheap.h"
+#include "mount.h"
 
 extern uint32_t pmm_total_frames(void);       // defined next to pmm_alloc
 
 enum {
-    K_ROOT = 1, K_VERSION, K_UPTIME, K_MEMINFO, K_CPUINFO, K_STAT,
+    K_ROOT = 1, K_VERSION, K_UPTIME, K_MEMINFO, K_CPUINFO, K_STAT, K_MOUNTS,
     K_PIDDIR, K_PID_STATUS, K_PID_COMM
 };
 
@@ -230,6 +231,31 @@ static int gen_stat(struct sb *s) {
     return 0;
 }
 
+static int gen_mounts(struct sb *s) {
+    char path[VFS_PATH_MAX];
+    char dev[24];
+
+    for (int i = 0; vfs_mount_path(i, path) == 0; i++) {
+        const char *name = "none";
+        const char *type;
+
+        if (mount_device(path, dev, sizeof(dev)) == 0) {       // a block device holds it
+            name = dev;
+            type = "ext2";
+        } else if (strcmp(path, "/dev") == 0) {
+            type = "devfs";
+        } else if (strcmp(path, "/proc") == 0) {
+            type = "proc";
+        } else {
+            type = "ramfs";
+        }
+        sb_str(s, name);  sb_chr(s, ' ');
+        sb_str(s, path);  sb_chr(s, ' ');
+        sb_str(s, type);  sb_str(s, " rw 0 0\n");
+    }
+    return 0;
+}
+
 static int gen_pid_status(struct sb *s, int pid) {
     struct procinfo pi;
     if (!find_info(pid, &pi)) return -ESRCH;
@@ -292,6 +318,7 @@ static int procfs_read(struct vfs_node *n, uint32_t off, uint32_t len, void *buf
     case K_STAT:       r = gen_stat(&s);                 break;
     case K_PID_STATUS: r = gen_pid_status(&s, p->pid);   break;
     case K_PID_COMM:   r = gen_pid_comm(&s, p->pid);     break;
+    case K_MOUNTS:     r = gen_mounts(&s);               break;
     default:           return -EISDIR;
     }
     if (r) return r;
@@ -308,7 +335,8 @@ struct entry { const char *name; int kind; };
 
 static const struct entry root_entries[] = {
     { "version", K_VERSION }, { "uptime", K_UPTIME }, { "meminfo", K_MEMINFO },
-    { "cpuinfo", K_CPUINFO }, { "stat", K_STAT },     { "self", K_PIDDIR },
+    { "cpuinfo", K_CPUINFO }, { "stat", K_STAT },     { "mounts", K_MOUNTS },
+    { "self", K_PIDDIR },
 };
 #define NROOT ((uint32_t)(sizeof(root_entries) / sizeof(root_entries[0])))
 

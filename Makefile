@@ -54,7 +54,7 @@ OBJS := boot/boot.o boot/gdt.o boot/isr.o boot/switch.o \
         kernel/kernel.o kernel/terminal.o kernel/kprintf.o kernel/string.o \
         kernel/gdt.o kernel/idt.o kernel/pic.o kernel/pit.o kernel/keyboard.o \
         kernel/pmm.o kernel/paging.o kernel/kheap.o kernel/ata.o kernel/part.o \
-        kernel/pci.o kernel/ahci.o kernel/ehci.o kernel/usbstor.o \
+        kernel/pci.o kernel/ahci.o kernel/ehci.o kernel/usbstor.o kernel/sys_mount.o \
         kernel/vfs.o kernel/ramfs.o kernel/devfs.o kernel/pipe.o kernel/ext2.o \
         kernel/syscall.o kernel/elf.o kernel/proc.o kernel/tty.o kernel/power.o \
         kernel/fb.o kernel/fbdev.o kernel/mouse.o kernel/hostname.o \

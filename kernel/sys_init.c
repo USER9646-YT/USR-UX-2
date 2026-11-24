@@ -8,6 +8,7 @@ void sys_mem_init(void);        // kernel/sys_mem.c: brk
 void sys_time_init(void);       // kernel/sys_time.c: time, gettimeofday, clock_gettime
 void sys_misc_init(void);       // kernel/sys_misc.c: fstat, lstat, access, umask
 void sys_socket_init(void);     // kernel/sys_socket.c: socketcall (AF_UNIX sockets)
+void sys_mount_init(void);      // kernel/sys_mount.c: mount, umount
 
 void syscall_register_all(void) {
     sys_extra_init();
@@ -18,4 +19,5 @@ void syscall_register_all(void) {
     sys_time_init();
     sys_misc_init();
     sys_socket_init();
+    sys_mount_init();
 }

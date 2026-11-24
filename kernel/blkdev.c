@@ -41,6 +41,14 @@ struct blkinfo {
 
 static uint32_t next_ino = 0x8000;
 
+struct blkreg {
+    char     name[16];
+    int      disk, part;
+    uint32_t start, sectors;
+};
+static struct blkreg registry[64];
+static int           nregistry;
+
 // ---------- byte-granular I/O on top of whole sectors ---------- //
 
 static int blk_io(struct blk *b, uint32_t off, uint32_t len, void *buf, int is_write) {
@@ -123,6 +131,30 @@ static int blk_ioctl(struct vfs_node *n, uint32_t req, uint32_t arg) {
 
 static struct vfs_ops blk_ops = { .read = blk_read, .write = blk_write, .ioctl = blk_ioctl };
 
+int blkdev_from_node(struct vfs_node *n, int *disk, uint32_t *start, uint32_t *sectors) {
+    if (!n || n->ops != &blk_ops) return -1;
+    struct blk *b = n->priv;
+    *disk    = b->disk;
+    *start   = b->start;
+    *sectors = b->sectors;
+    return 0;
+}
+
+int blkdev_name(int disk, uint32_t start, char *out, uint32_t size) {
+    int best = -1;
+
+    for (int i = 0; i < nregistry; i++) {
+        if (registry[i].disk != disk || registry[i].start != start) continue;
+        if (best < 0 || registry[i].part > registry[best].part) best = i;   // a partition beats the whole disk
+    }
+    if (best < 0 || size == 0) return -1;
+
+    uint32_t i;
+    for (i = 0; i + 1 < size && registry[best].name[i]; i++) out[i] = registry[best].name[i];
+    out[i] = '\0';
+    return 0;
+}
+
 // ---------- creating the nodes ---------- //
 
 static char *put_num(char *d, uint32_t v) {
@@ -179,6 +211,16 @@ static void add_node(struct vfs_node *root, int disk, int part, uint32_t start, 
     n->priv = b;
 
     ramfs_add_node(root, name, n);
+    if (nregistry < 64) {                           // remember the name for blkdev_name()
+        struct blkreg *g = &registry[nregistry++];
+        int i;
+        for (i = 0; i < 15 && name[i]; i++) g->name[i] = name[i];
+        g->name[i] = '\0';
+        g->disk    = disk;
+        g->part    = part;
+        g->start   = start;
+        g->sectors = sectors;
+    }
 }
 
 // ---------- partition tables ---------- //

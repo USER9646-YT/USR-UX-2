@@ -7,7 +7,7 @@
 #define VFS_NAME_MAX   255
 #define VFS_PATH_MAX   512
 #define VFS_MAX_FDS    32
-#define VFS_MAX_MOUNTS 8
+#define VFS_MAX_MOUNTS 16
 
 // permission bits for vfs_access
 #define ACC_R 4
@@ -62,6 +62,9 @@ struct vfs_ops {
     // (one reference, which the open file takes over). /dev/ptmx uses this to hand out
     // a fresh pty master. Return 0 or -errno.
     int (*open)(struct vfs_node *n, struct vfs_node **out);
+    // Called on the root node of a filesystem that is being unmounted. 0 = it was released
+    // and freed, -EBUSY = files are still open
+    int (*unmount)(struct vfs_node *root);
 };
 
 struct vfs_node {
@@ -95,6 +98,8 @@ extern int vfs_nonblock;
 void vfs_init(void);
 void vfs_node_put(struct vfs_node *n);
 int  vfs_mount(const char *path, struct vfs_node *root);   // takes over the caller's reference
+int  vfs_umount(const char *path);                         // 0 or -errno
+int  vfs_mount_path(int index, char *out);                 // path of the index-th mount; -1 past the end
 int  vfs_normalize(const char *path, char *out);           // out: VFS_PATH_MAX bytes
 
 /* permissions */

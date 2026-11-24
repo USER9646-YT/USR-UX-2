@@ -1292,6 +1292,27 @@ static int ext2_rename(struct vfs_node *odir, const char *oname,
     return r;
 }
 
+// Unmounts the filesystem whose root directory is `root`. Refuses while any other inode is
+// still referenced (an open file); otherwise writes the metadata back and frees everything.
+static int ext2_unmount(struct vfs_node *root) {
+    struct ext2_node *en = root->priv;
+    struct ext2_fs *fs = en->fs;
+
+    if (root->refs > 1) return -EBUSY;
+    for (struct ext2_node *e = fs->nodes; e; e = e->next)
+        if (e->vnode != root) return -EBUSY;
+
+    int r = flush_meta(fs);
+    if (r) return r;
+
+    kfree(fs->gdt);
+    kfree(fs->sb);                      // the superblock buffer ext2_mount allocated
+    kfree(fs);
+    kfree(en);
+    kfree(root);
+    return 0;
+}
+
 static struct vfs_ops ext2_ops = {
     .read     = ext2_read,
     .write    = ext2_write,
@@ -1304,6 +1325,7 @@ static struct vfs_ops ext2_ops = {
     .rmdir    = ext2_rmdir,
     .rename   = ext2_rename,
     .truncate = ext2_truncate,
+    .unmount  = ext2_unmount,
 };
 
 // ---------- mounting ----------

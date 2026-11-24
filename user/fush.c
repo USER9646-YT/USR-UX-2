@@ -212,8 +212,7 @@ static int builtin(struct cmd *c, int *status) {
         puts("ls cat echo cp mv rm mkdir rmdir touch grep head tail wc tee vi env\n"
              "clear sleep ps kill pkill chmod chown uname hostname id whoami su sudo\n"
              "true false halt poweroff reboot telinit runlevel cc hello\n"
-             "help pid cd pwd exit\n"
-             "operators: | < > >> && || ; & (& runs a command in the background)\n");
+             "help pid cd pwd exit startnx mount umount lsblk\n");
         return 1;
     }
     if (streq(argv[0], "cd")) {
