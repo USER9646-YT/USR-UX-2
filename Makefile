@@ -60,6 +60,7 @@ OBJS := boot/boot.o boot/gdt.o boot/isr.o boot/switch.o \
         kernel/fb.o kernel/fbdev.o kernel/mouse.o kernel/hostname.o \
         kernel/sys_init.o kernel/sys_extra.o kernel/poll.o \
         kernel/sys_socket.o kernel/pty.o kernel/blkdev.o \
+        kernel/sys_posix.o \
         kernel/panic.o kernel/rtc.o kernel/sys_cred.o kernel/sys_tty.o \
         kernel/sys_mem.o kernel/sys_time.o kernel/sys_misc.o \
         kernel/procfs.o kernel/keymap.o kernel/latin1.o kernel/kbdmenu.o

@@ -12,7 +12,7 @@ int main(int argc, char **argv) {
 
     if (argc == 1) s = 1;
     for (int i = 1; i < argc; i++) {
-        if (argv[i][0] != '-') { puts("usage: uname [-asnrvm]\n"); return 1; }
+        if (argv[i][0] != '-') { puts("usage: uname [-asnrvm]\n\nPrint system information\n\n        -a      Print all\n        -m      Machine type\n        -n      Hostname\n        -r      Kernel release\n        -s      Kernel name\n        -v      Kernel version\n"); return 1; }
         for (const char *f = argv[i] + 1; *f; f++) {
             switch (*f) {
             case 'a': s = n = r = v = m = 1; break;
@@ -21,7 +21,14 @@ int main(int argc, char **argv) {
             case 'r': r = 1; break;
             case 'v': v = 1; break;
             case 'm': m = 1; break;
-            default:  puts("usage: uname [-asnrvm]\n"); return 1;
+            default:  puts("usage: uname [-amnrsv]\n\n"
+                           "Print system information\n\n"
+                           "        -a      Print all\n"
+                           "        -m      Machine type\n"
+                           "        -n      Hostname\n"
+                           "        -r      Kernel release\n"
+                           "        -s      Kernel name\n"
+                           "        -v      Kernel version\n"); return 1;
             }
         }
     }

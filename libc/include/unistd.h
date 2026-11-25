@@ -86,4 +86,20 @@ int     sethostname(const char *, size_t);
 char   *getlogin(void);
 
 int     getopt(int, char *const[], const char *);
+
+pid_t   vfork(void);
+pid_t   getsid(pid_t);
+int     nice(int);
+int     getgroups(int, gid_t *);
+int     setgroups(size_t, const gid_t *);
+int     setreuid(uid_t, uid_t);
+int     setregid(gid_t, gid_t);
+int     setresuid(uid_t, uid_t, uid_t);
+int     setresgid(gid_t, gid_t, gid_t);
+int     getresuid(uid_t *, uid_t *, uid_t *);
+int     getresgid(gid_t *, gid_t *, gid_t *);
+int     fchown(int, uid_t, gid_t);
+int     lchown(const char *, uid_t, gid_t);
+int     dup3(int, int, int);
+int     pipe2(int[2], int);
 #endif

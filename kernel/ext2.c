@@ -8,6 +8,7 @@
 #include "pit.h"
 #include "kheap.h"
 #include "kprintf.h"
+#include "rtc.h"
 
 #define EXT2_MAGIC         0xEF53
 #define EXT2_ROOT_INO      2
@@ -140,9 +141,11 @@ struct ext2_node {                    // vfs_node->priv
 
 static struct vfs_ops ext2_ops;       // defined at the bottom
 
-// No clock yet: a fixed base plus the uptime keeps timestamps increasing
+// Inode timestamps come from the real clock
 static uint32_t now(void) {
-    return 1767225600u + pit_ticks() / 100u;
+    uint32_t sec, usec;
+    time_now(&sec, &usec);
+    return sec;
 }
 
 // ---------- low-level block access ---------- //

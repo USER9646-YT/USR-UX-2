@@ -150,13 +150,10 @@ int fstat(int fd, struct stat *st) {
     return 0;
 }
 
-int fchmod(int fd, mode_t m)                { (void)fd; (void)m; errno = ENOSYS; return -1; }
 int mkfifo(const char *p, mode_t m)         { (void)p; (void)m; errno = ENOSYS; return -1; }
 int link(const char *a, const char *b)      { (void)a; (void)b; errno = ENOSYS; return -1; }
 int symlink(const char *a, const char *b)   { (void)a; (void)b; errno = ENOSYS; return -1; }
 ssize_t readlink(const char *p, char *b, size_t n) { (void)p; (void)b; (void)n; errno = EINVAL; return -1; }
-int truncate(const char *p, off_t n)        { (void)p; (void)n; errno = ENOSYS; return -1; }
-int ftruncate(int fd, off_t n)              { (void)fd; (void)n; errno = ENOSYS; return -1; }
 int fsync(int fd)                           { (void)fd; return 0; }
 int fdatasync(int fd)                       { (void)fd; return 0; }
 

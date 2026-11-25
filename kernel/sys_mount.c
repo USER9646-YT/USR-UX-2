@@ -60,7 +60,12 @@ static int sys_mount(struct registers *r) {
     uint32_t start, sectors;
 
     if (current->uid != 0) return -EPERM;
-    if (r->esi != 0) return -EINVAL;                        // no mount flags are supported yet
+    // Restrictions we cannot enforce (nosuid, nodev, noexec, sync, noatime, relatime, silent)
+    // are accepted and ignored. Read-only, remount, bind and move are refused.
+    #define MS_IGNORED (0x1Eu | 0xC00u | 0x8000u | 0x200000u | 0x1000000u)
+    uint32_t flags = r->esi;
+    if ((flags & 0xFFFF0000u) == 0xC0ED0000u) flags &= 0xFFFFu;      // the old magic in the top half
+    if (flags & ~MS_IGNORED) return -EINVAL;
 
     if ((err = syscall_user_path((const char *)(uintptr_t)r->ebx, src)) != 0) return err;
     if ((err = syscall_user_path((const char *)(uintptr_t)r->ecx, tgt)) != 0) return err;
@@ -128,7 +133,14 @@ static int sys_umount(struct registers *r) {
     return 0;
 }
 
+// umount2(target, flags): 52. MNT_FORCE is accepted and changes nothing; lazy unmounts are not supported
+static int sys_umount2(struct registers *r) {
+    if (r->ecx & ~1u) return -EINVAL;
+    return sys_umount(r);
+}
+
 void sys_mount_init(void) {
     syscall_register(21, sys_mount);
     syscall_register(22, sys_umount);
+    syscall_register(52, sys_umount2);
 }

@@ -20,8 +20,8 @@
 #include "hostname.h"
 
 #define OS_SYSNAME  "USR/UX"
-#define OS_RELEASE  "2 0.91"
-#define OS_VERSION  "#1 Wed 21 Nov 2026 22:52:45 +0100"
+#define OS_RELEASE  "2 0.95b"
+#define OS_VERSION  "#1 Wed 25 Nov 2026 13:29:28 +0100"
 #define OS_MACHINE  "i386"
 
 #define SYS_EXIT      1
@@ -53,6 +53,7 @@
 #define SYS_MUNMAP   91
 #define SYS_STAT    106
 #define SYS_UNAME   122
+#define MAX_EXTRA 160
 #define SYS_NANOSLEEP 162
 #define SYS_MMAP2   192          // 6 arguments in ebx, ecx, edx, esi, edi, ebp; offset in pages
 #define SYS_GETCWD  183

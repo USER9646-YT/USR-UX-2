@@ -1,6 +1,7 @@
 #ifndef _SYS_WAIT_H
 #define _SYS_WAIT_H
 #include <sys/types.h>
+#include <sys/resource.h>
 
 #define WNOHANG    1
 #define WUNTRACED  2      // accepted, but nothing can stop yet: no effect
@@ -16,4 +17,5 @@
 
 pid_t wait(int *);
 pid_t waitpid(pid_t, int *, int);
+pid_t wait4(pid_t, int *, int, struct rusage *);
 #endif
