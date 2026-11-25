@@ -61,6 +61,7 @@ startnx
 
 <img width="1023" height="765" alt="usruxscreen" src="https://github.com/user-attachments/assets/96b9d18b-4013-41e9-9074-bf3c48206432" />
 <img width="1023" height="765" alt="nxterm-nxclock" src="https://github.com/user-attachments/assets/f2d50bf4-e30a-4ea0-b709-ca13b5810dce" />
+<img width="1019" height="766" alt="eyyyu" src="https://github.com/user-attachments/assets/95b0576d-7343-49b9-9c69-0c51cff7b97d" />
 
 # Code used from other people:
 

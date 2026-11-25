@@ -39,6 +39,25 @@ static int sys_gettimeofday(struct registers *r) {
     return 0;
 }
 
+// settimeofday(tv, tz): 79. Root only. The time zone is ignored (there are none), and so are
+// the microseconds: the clock is set to whole seconds, in the CMOS clock too.
+static int sys_settimeofday(struct registers *r) {
+    const struct timeval *tv = (const struct timeval *)(uintptr_t)r->ebx;
+    struct timeval t;
+
+    if (current->uid != 0) return -EPERM;
+    if (!tv) return 0;                              // only a time zone was given: nothing to do
+    if (!paging_check_user((uint32_t)(uintptr_t)tv, sizeof(*tv), 0)) return -EFAULT;
+
+    memcpy(&t, tv, sizeof(t));
+    if (t.tv_usec < 0 || t.tv_usec >= 1000000) return -EINVAL;
+
+    uint32_t sec = (uint32_t)t.tv_sec;              // unsigned: good until 2106
+    time_set(sec);
+    rtc_write_epoch(sec);
+    return 0;
+}
+
 // clock_gettime(clock, ts): 265
 static int sys_clock_gettime(struct registers *r) {
     int clock = (int)r->ebx;
@@ -66,5 +85,6 @@ static int sys_clock_gettime(struct registers *r) {
 void sys_time_init(void) {
     syscall_register(13,  sys_time);
     syscall_register(78,  sys_gettimeofday);
+    syscall_register(79,  sys_settimeofday);
     syscall_register(265, sys_clock_gettime);
 }
