@@ -19,10 +19,7 @@
 #include "power.h"
 #include "hostname.h"
 
-#define OS_SYSNAME  "USR/UX"
-#define OS_RELEASE  "2 0.95b"
-#define OS_VERSION  "#1 Wed 25 Nov 2026 13:29:28 +0100"
-#define OS_MACHINE  "i386"
+// Moved the uname definitions to syscall.h
 
 #define SYS_EXIT      1
 #define SYS_FORK      2

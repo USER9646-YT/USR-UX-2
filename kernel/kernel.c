@@ -1,3 +1,5 @@
+// This file contains the main program of USR/UX.
+
 #include <stdint.h>
 #include <stddef.h>
 #include "multiboot.h"
@@ -35,6 +37,51 @@ static void panic_init_notexist(void) {
     kprintf("\npanic: no valid init found or init crashed on start\n");
     kprintf("System halted.\n");
     for (;;) __asm__ volatile ("cli; hlt");
+}
+
+// REMOVE IF ISSUES HAPPEN
+static inline uint8_t io_inb(uint16_t port) {
+    uint8_t ret;
+    asm volatile("inb %1, %0" : "=a"(ret) : "Nd"(port));
+    return ret;
+}
+
+static inline void io_outb(uint16_t port, uint8_t val) {
+    asm volatile("outb %0, %1" : : "a"(val), "Nd"(port));
+}
+
+void sleepkrnl(uint32_t ms) {
+    /* Enable PIT Channel 2 gate (bit 0) and keep PC speaker off (bit 1 = 0) */
+    io_outb(0x61, (io_inb(0x61) & 0xFD) | 0x01);
+
+    for (uint32_t i = 0; i < ms; i++) {
+        /* Channel 2, lobyte/hibyte, Mode 0 (OUT goes low immediately) */
+        io_outb(0x43, 0xB0);
+
+        /* 1193182 Hz / 1000 = 1193 ticks (~1 ms) */
+        io_outb(0x42, 1193 & 0xFF);
+        io_outb(0x42, (1193 >> 8) & 0xFF);
+
+        /* Wait until Channel 2 OUT (bit 5 of port 0x61) goes high */
+        while ((io_inb(0x61) & 0x20) == 0) {
+            asm volatile("pause");
+        }
+    }
+}
+// REMOVE IF ISSUES HAPPEN
+
+static void announce(void) {
+  // Display the USR/UX startup banner. (code took from Minix because why the fuck not)
+  // Adapted from MINIX 3 (Copyright Vrije Universiteit, Amsterdam).
+  kprintf("\nUSR/UX %s. "
+// #ifdef _VCS_REVISION
+//       "(" _VCS_REVISION ")"
+// #endif
+         "\nCopyright 2026, USER9646\n",
+         OS_RELEASE);
+  kprintf("USR/UX is free software licensed under the GNU GPLv2.\n"
+         "USR/UX comes with ABSOLUTELY NO WARRANTY, to the extent\n"
+         "permitted by applicable law.\n");
 }
 
 void kernel_main(uint32_t magic, struct multiboot_info *mbi) {
@@ -78,6 +125,9 @@ void kernel_main(uint32_t magic, struct multiboot_info *mbi) {
     keyboard_init();
     mouse_init();
 
+    sleepkrnl(250);
+    kprintf("Starting keyboard menu in a second...");
+    sleepkrnl(1000);
     kbdmenu_run(mbi);            // keyboard layout: kbd=<name> on the command line, or a menu 
 
     int ndrives = ata_init();
@@ -107,6 +157,7 @@ void kernel_main(uint32_t magic, struct multiboot_info *mbi) {
     if (run) run->mode = 040755;
     vfs_mount("/run", run);
 
+    announce();
     kprintf("starting init...\n");
     if (proc_spawn_init("/sbin/init") != 0) {
         kprintf("cannot start /sbin/init!\n");

@@ -72,7 +72,7 @@ https://github.com/brenns10/lsh
 Under the Unlicense
 
 https://github.com/thepanoc95/cfetch
-Copyright (c) 2026, OakyMacintosh - BSD Clause 3
+Copyright (c) 2026, OakyMacintosh - BSD 3-Clause
 
 https://github.com/tinycc/tinycc
 GNU Lesser General Public License
@@ -80,13 +80,22 @@ GNU Lesser General Public License
 https://github.com/ghaerr/microwindows
 GNU General Public License V2
 
+https://github.com/Stichting-MINIX-Research-Foundation/minix/
+Copyright (c) 1987, 1997, 2006, Vrije Universiteit, Amsterdam, The Netherlands - BSD 3-Clause License
+
 See "THIRDPARTYLICENSE" for more information.
 
 # What is missing?
-Vital disk commands such as mount, umount and dd
+Vital disk commands such as dd
 
-Fat32 compatibility
+FAT32 compatibility
 
 Sound
 
 Shortcuts/Links
+
+# What do i want to implement now?
+
+Xorg (in your dreams buddy)
+
+Busybox

@@ -46,18 +46,23 @@ Boot type:       MBR BIOS, which means EFI GPT does not work.
 
 Code used from other people:
 https://github.com/ss7m/paleofetch
-Copyright (c) 2020. Sam Barr
+Copyright (c) 2020. Sam Barr - MIT license
 
 https://github.com/brenns10/lsh
 Under the Unlicense
 
 https://github.com/thepanoc95/cfetch
-Copyright (c) 2026, OakyMacintosh
+Copyright (c) 2026, OakyMacintosh - BSD 3-Clause license
 
 https://github.com/tinycc/tinycc
 GNU Lesser General Public License
 
 https://github.com/ghaerr/microwindows
 GNU General Public License V2
+
+https://github.com/Stichting-MINIX-Research-Foundation/minix/
+Copyright (c) 1987, 1997, 2006, Vrije Universiteit, Amsterdam, The Netherlands - BSD 3-Clause license
+
+See "THIRDPARTYLICENSE" for more information.
 
 This project is licensed under the GNU General Public License V2.

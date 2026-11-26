@@ -3,6 +3,7 @@
 #include "ulib.h"
 #include "auth.h"
 #include "envutil.h"
+#include "kernel/syscall.h"
 
 static int read_line(char *buf, int max) {
     int n = read(0, buf, (unsigned int)(max - 1));
@@ -18,7 +19,9 @@ int main(void) {
     for (;;) {
         struct utsname u;
         uname(&u);
-        puts("\nUSR/UX 2 0.95b\n");
+        puts("\nUSR/UX "
+             OS_RELEASE);
+        puts("\n");
         puts(u.nodename);
         puts(" login: ");
         if (read_line(user, sizeof(user)) <= 0) continue;

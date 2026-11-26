@@ -2,11 +2,14 @@ CC      := gcc
 AS      := gcc
 LD      := ld
 
+# GIT_REV := $(shell git rev-parse --short HEAD 2>/dev/null)
+
 CFLAGS  := -m32 -std=gnu11 -ffreestanding -O2 -Wall -Wextra \
            -fno-stack-protector -fno-pie -fno-pic -fno-builtin \
            -fno-tree-loop-distribute-patterns -nostdinc \
            -Iusr/include -Iusr/include/kernel -MMD -MP \
            -mno-sse -mno-sse2 -mno-mmx -mno-80387
+# CFLAGS  += $(if $(GIT_REV),-D_VCS_REVISION=\"$(GIT_REV)\")
 ASFLAGS := -m32 -c
 LDFLAGS := -m elf_i386 -T linker.ld -nostdlib
 
