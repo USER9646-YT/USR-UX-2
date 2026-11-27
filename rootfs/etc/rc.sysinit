@@ -1,5 +1,15 @@
 # runs once at boot, before the first runlevel
 hostname -F /etc/hostname
-echo "[sysinit] kernel mounted /, /dev, /tmp and /run"
+echo "[sysinit] kernel mounted / already - no need"
+sleep 0.25
+echo "[sysinit] mounting /proc"
+mount -t proc none /proc
+echo "[sysinit] mounting /tmp"
+mount -t ramfs none /tmp
+echo "[sysinit] mounting /run"
+mount -t ramfs none /run
+echo "[sysinit] chmodding /run"
+chmod 755 /run
+echo "[sysinit] executing the rest..."
 uname -a
 cat /etc/unixtext

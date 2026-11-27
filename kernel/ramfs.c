@@ -245,6 +245,40 @@ static int ramfs_setattr(struct vfs_node *n, int mode, int uid, int gid) {
     return 0;
 }
 
+// Is anything below this directory still referenced from outside the tree?
+static int tree_busy(struct vfs_node *dir) {
+    struct ramfs_data *d = dir->priv;
+
+    for (struct ramfs_entry *e = d->head; e; e = e->next) {
+        struct vfs_node *n = e->node;
+        if (n->refs > 1) return 1;                      // open file, cwd, or a node shared with another fs
+        if (n->type == VFS_DIR && n->ops == &ramfs_ops && tree_busy(n)) return 1;
+    }
+    return 0;
+}
+
+static void tree_free(struct vfs_node *dir) {
+    struct ramfs_data *d = dir->priv;
+
+    while (d->head) {
+        struct ramfs_entry *e = d->head;
+        struct vfs_node *n = e->node;
+        unlink_entry(d, e, NULL);
+        kfree(e);
+        if (n->type == VFS_DIR && n->ops == &ramfs_ops) tree_free(n);
+        vfs_node_put(n);
+    }
+}
+
+// Like ext2_unmount: refuses while busy, otherwise consumes the root node
+static int ramfs_unmount(struct vfs_node *root) {
+    if (root->refs > 1) return -EBUSY;
+    if (tree_busy(root)) return -EBUSY;
+    tree_free(root);
+    vfs_node_put(root);                                 // last reference -> ramfs_release
+    return 0;
+}
+
 static struct vfs_ops ramfs_ops = {
     .read     = ramfs_read,
     .write    = ramfs_write,

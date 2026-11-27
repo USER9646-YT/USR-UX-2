@@ -5,9 +5,9 @@
 #include "idt.h"
 
 // Moved the uname definitions here
-#define OS_SYSNAME  "USR/UX"
-#define OS_RELEASE  "2 0.95b"
-#define OS_VERSION  "#1 Wed 25 Nov 2026 13:29:28 +0100"
+#define OS_SYSNAME  "USR/UX 2"
+#define OS_RELEASE  "0.97b"
+#define OS_VERSION    "#1 " __DATE__ " " __TIME__
 #define OS_MACHINE  "i386"
 
 // A syscall implemented outside syscall.c: its arguments are in r->ebx, ecx, edx, esi, edi, ebp,

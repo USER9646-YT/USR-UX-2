@@ -10,6 +10,9 @@
 #include "vfs.h"
 #include "proc.h"
 #include "kprintf.h"
+#include "procfs.h"
+#include "devfs.h"
+#include "ramfs.h"
 
 #define MTAB_MAX 16
 
@@ -17,7 +20,8 @@
 struct mtent {
     int      used;
     char     target[VFS_PATH_MAX];
-    int      disk;
+    char     type[8];
+    int      disk;                      // -1 = no block device
     uint32_t start, sectors;
 };
 
@@ -41,14 +45,32 @@ void mount_record(const char *target, int disk, uint32_t start, uint32_t sectors
 
     m->used = 1;
     memcpy(m->target, target, strlen(target) + 1);
+    memcpy(m->type, "ext2", 5);
     m->disk    = disk;
     m->start   = start;
     m->sectors = sectors;
 }
 
+void mount_record_fs(const char *target, const char *type) {
+    struct mtent *m = mtab_slot();
+    if (!m || strlen(target) >= VFS_PATH_MAX || strlen(type) >= sizeof(m->type)) return;
+
+    m->used = 1;
+    memcpy(m->target, target, strlen(target) + 1);
+    memcpy(m->type, type, strlen(type) + 1);
+    m->disk    = -1;
+    m->start   = 0;
+    m->sectors = 0;
+}
+
+const char *mount_fstype(const char *target) {
+    struct mtent *m = mtab_find(target);
+    return m ? m->type : NULL;
+}
+
 int mount_device(const char *target, char *dev, size_t size) {
     struct mtent *m = mtab_find(target);
-    if (!m) return -1;
+    if (!m || m->disk < 0) return -1;
     return blkdev_name(m->disk, m->start, dev, (uint32_t)size);
 }
 
@@ -73,20 +95,47 @@ static int sys_mount(struct registers *r) {
     fst[0] = '\0';
     if (r->edx && copy_str_from_user(fst, (const char *)(uintptr_t)r->edx, sizeof(fst)) < 0)
         return -EINVAL;
-    if (fst[0] && strcmp(fst, "ext2") != 0 && strcmp(fst, "auto") != 0) return -ENODEV;
+
+    // filesystems that need no block device
+    struct vfs_node *(*make)(void) = NULL;
+    const char *canon = NULL;
+    if      (strcmp(fst, "proc") == 0)                                { make = procfs_create;     canon = "proc";  }
+    else if (strcmp(fst, "devfs") == 0)                               { make = devfs_create;      canon = "devfs"; }
+    else if (strcmp(fst, "ramfs") == 0 || strcmp(fst, "tmpfs") == 0)  { make = ramfs_create_root; canon = "ramfs"; }
+    else if (fst[0] && strcmp(fst, "ext2") != 0 && strcmp(fst, "auto") != 0) return -ENODEV;
 
     if ((err = vfs_normalize(tgt, norm)) != 0) return err;
-
-    // the source must be one of our block devices
-    struct vfs_file *f = vfs_file_open(src, O_RDONLY, &err);
-    if (!f) return err;
-    int isblk = blkdev_from_node(f->node, &disk, &start, &sectors);
-    vfs_file_put(f);
-    if (isblk != 0) return -EINVAL;                         // not a block device
 
     // the target must be an existing directory
     if ((err = vfs_stat(norm, &st)) != 0) return err;
     if (st.type != VFS_DIR) return -ENOTDIR;
+
+    struct mtent *m = mtab_slot();
+    if (!m) return -ENOSPC;
+
+    if (make) {
+        struct vfs_node *root = make();
+        if (!root) return -ENOMEM;
+
+        err = vfs_mount(norm, root);
+        if (err) {
+            if (root->ops && root->ops->unmount) root->ops->unmount(root);
+            return err;
+        }
+        m->used = 1;
+        memcpy(m->target, norm, strlen(norm) + 1);
+        memcpy(m->type, canon, strlen(canon) + 1);
+        m->disk = -1;
+        m->start = m->sectors = 0;
+        return 0;
+    }
+
+    // ext2: the source must be one of our block devices
+    struct vfs_file *f = vfs_file_open(src, O_RDONLY, &err);
+    if (!f) return err;
+    int isblk = blkdev_from_node(f->node, &disk, &start, &sectors);
+    vfs_file_put(f);
+    if (isblk != 0) return -EINVAL;
 
     // never mount the same blocks twice: two ext2 instances would corrupt each other
     for (int i = 0; i < MTAB_MAX; i++) {
@@ -95,11 +144,8 @@ static int sys_mount(struct registers *r) {
             return -EBUSY;
     }
 
-    struct mtent *m = mtab_slot();
-    if (!m) return -ENOSPC;
-
     struct vfs_node *root = ext2_mount(disk, start);
-    if (!root) return -EINVAL;                              // not an ext2 filesystem
+    if (!root) return -EINVAL;
 
     err = vfs_mount(norm, root);
     if (err) {
@@ -109,6 +155,7 @@ static int sys_mount(struct registers *r) {
 
     m->used = 1;
     memcpy(m->target, norm, strlen(norm) + 1);
+    memcpy(m->type, "ext2", 5);
     m->disk    = disk;
     m->start   = start;
     m->sectors = sectors;

@@ -237,18 +237,11 @@ static int gen_mounts(struct sb *s) {
 
     for (int i = 0; vfs_mount_path(i, path) == 0; i++) {
         const char *name = "none";
-        const char *type;
+        const char *type = mount_fstype(path);
+        if (!type) type = "none";
 
-        if (mount_device(path, dev, sizeof(dev)) == 0) {       // a block device holds it
-            name = dev;
-            type = "ext2";
-        } else if (strcmp(path, "/dev") == 0) {
-            type = "devfs";
-        } else if (strcmp(path, "/proc") == 0) {
-            type = "proc";
-        } else {
-            type = "ramfs";
-        }
+        if (mount_device(path, dev, sizeof(dev)) == 0) name = dev;
+
         sb_str(s, name);  sb_chr(s, ' ');
         sb_str(s, path);  sb_chr(s, ' ');
         sb_str(s, type);  sb_str(s, " rw 0 0\n");
@@ -303,6 +296,12 @@ static struct vfs_node *make_node(int kind, int pid) {
 
 static void procfs_release(struct vfs_node *n) {
     kfree(n);                                     // n is the start of the struct pn
+}
+
+static int procfs_unmount(struct vfs_node *root) {
+    if (root->refs > 1) return -EBUSY;
+    vfs_node_put(root);                                 // -> procfs_release
+    return 0;
 }
 
 static int procfs_read(struct vfs_node *n, uint32_t off, uint32_t len, void *buf) {
@@ -423,6 +422,7 @@ static struct vfs_ops procfs_ops = {
     .readdir = procfs_readdir,
     .finddir = procfs_finddir,
     .release = procfs_release,
+    .unmount = procfs_unmount,
 };
 
 struct vfs_node *procfs_create(void) {

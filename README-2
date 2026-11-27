@@ -1,6 +1,8 @@
 USR/UX 2 -- a small ACTUAL UNIX-Like kernel (unlike its predecessor USR/UX)
 
-USR/UX 2 (UserUNIX) is a UNIX clone made for 32-bit x86 computers written from scratch. It tries to be more POSIX compliant than its predecessor, but it wont be as professional as other OSDev projects like Zinnia, Ethereal or Astral.
+WHAT IS USR/UX 2?
+
+  USR/UX 2 (UserUNIX) is a monolithic UNIX clone made by USER9646. It tries to be more UNIX-like and POSIX compatible (it also has ring 3), but it wont be as professional as other OsDev projects like Zinnia, Ethereal or Astral. It only works with ext2 and has a (small) init system (obviously, because this is unix(like)).
 
 It is not the same as the first version, which is based on TanjaOS. This is a fully independent OS not based off anything.
 
@@ -8,7 +10,6 @@ Its file system is ext2.
 
 huge flex: it runs on 4 MB
 
-It works with ext2 and has a init system.
 Init: /sbin/init - SysV style Init
 
 Its shells:
@@ -16,7 +17,7 @@ fush - Fast and Usable Shell (/bin/fush and /bin/sh) - Minimal shell system
 lsh - Stephen Brennan's LSH (/bin/lsh).
 
 Its C library:
-ulib - UserLibrary
+A fairly simple libc in libc/
 
 It also has a VI-like editor which is just called "vi", because i dont want to add the u- suffix to every thing
 

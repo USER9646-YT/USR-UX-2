@@ -148,14 +148,9 @@ void kernel_main(uint32_t magic, struct multiboot_info *mbi) {
         halt();
     }
     vfs_mount("/", root);
-    vfs_mount("/tmp", ramfs_create_root());      // scratch space in RAM 
-    vfs_mount("/dev", devfs_create());           // device nodes
     mount_record("/", 0, root_lba, root_sectors ? root_sectors : ata_get(0)->sectors);
-    vfs_mount("/proc", procfs_create());         // kernel and process information 
-
-    struct vfs_node *run = ramfs_create_root();  // init <-> telinit, runlevel: root only 
-    if (run) run->mode = 040755;
-    vfs_mount("/run", run);
+    vfs_mount("/dev", devfs_create());           // init needs /dev/console before any script runs
+    mount_record_fs("/dev", "devfs");
 
     announce();
     kprintf("starting init...\n");
