@@ -51,18 +51,18 @@ static inline void io_outb(uint16_t port, uint8_t val) {
 }
 
 void sleepkrnl(uint32_t ms) {
-    /* Enable PIT Channel 2 gate (bit 0) and keep PC speaker off (bit 1 = 0) */
+    // Enable PIT Channel 2 gate (bit 0) and keep PC speaker off (bit 1 = 0)
     io_outb(0x61, (io_inb(0x61) & 0xFD) | 0x01);
 
     for (uint32_t i = 0; i < ms; i++) {
-        /* Channel 2, lobyte/hibyte, Mode 0 (OUT goes low immediately) */
+        // Channel 2, lobyte/hibyte, Mode 0 (OUT goes low immediately)
         io_outb(0x43, 0xB0);
 
-        /* 1193182 Hz / 1000 = 1193 ticks (~1 ms) */
+        // 1193182 Hz / 1000 = 1193 ticks (~1 ms)
         io_outb(0x42, 1193 & 0xFF);
         io_outb(0x42, (1193 >> 8) & 0xFF);
 
-        /* Wait until Channel 2 OUT (bit 5 of port 0x61) goes high */
+        // Wait until Channel 2 OUT (bit 5 of port 0x61) goes high
         while ((io_inb(0x61) & 0x20) == 0) {
             asm volatile("pause");
         }
